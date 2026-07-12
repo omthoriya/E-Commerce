@@ -1,0 +1,35 @@
+const express = require("express");
+const dotenv = require("dotenv");
+const cors = require("cors");
+
+dotenv.config();
+
+require("./config/db");
+
+const userRoutes = require("./routes/userRoutes");
+const categoryRoutes = require("./routes/categoryRoutes");
+const productRoutes = require("./routes/productRoutes");
+const cartRoutes = require("./routes/cartRoutes");
+const orderRoutes = require("./routes/orderRoutes");
+
+const app = express();
+
+app.use(cors());
+app.use(express.json());
+
+app.get("/", (req, res) => {
+  res.send("E-Commerce API Running...");
+});
+
+app.use("/api/users", userRoutes);
+app.use("/api/categories", categoryRoutes);
+app.use("/api/products", productRoutes);
+app.use("/api/cart",cartRoutes);
+app.use("/api/orders",orderRoutes);
+
+const PORT = process.env.PORT || 5000;
+
+app.listen(PORT, () => {
+  console.log(`Server Running on port ${PORT}`);
+});
+
