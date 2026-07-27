@@ -14,29 +14,33 @@ const registerUser = async (req, res) => {
           message: err.message,
         });
       }
+
       if (result.length > 0) {
         return res.status(400).json({
           message: "User Already Exists.",
         });
       }
-    });
-    const hashPassword = await bcrypt.hash(password, 10);
 
-    const InsertQuery = "Insert into users(name,email,password) values(?,?,?)";
+      const hashPassword = await bcrypt.hash(password, 10);
 
-    db.query(InsertQuery, [name, email, hashPassword], (err, result) => {
-      if (err) {
-        return res.status(500).json({
-          message: err.message,
+      const insertQuery =
+        "INSERT INTO users(name,email,password) VALUES(?,?,?)";
+
+      db.query(insertQuery, [name, email, hashPassword], (err, result) => {
+        if (err) {
+          return res.status(500).json({
+            message: err.message,
+          });
+        }
+
+        return res.status(201).json({
+          message: "User Registered Successfully",
+          userId: result.insertId,
         });
-      }
-      res.status(201).json({
-        message: "User Registered Successfully",
-        userId: result.insertId,
       });
     });
   } catch (error) {
-    res.status(500).json({
+    return res.status(500).json({
       message: error.message,
     });
   }
@@ -62,29 +66,93 @@ const loginUser = (req, res) => {
 
     const match = await bcrypt.compare(password, user.password);
 
-    if(!match){
+    if (!match) {
       return res.status(401).json({
         message: "Invalid Email or Password",
       });
     }
 
-    res.status(201).json({
-      message:"Login Successfull",
-      token:generateToken(user.id)
-    })
-
+    res.status(200).json({
+      message: "Login Successfull",
+      token: generateToken(user.id),
+      user: {
+        id: user.id,
+        name: user.name,
+        email: user.email,
+        role: user.role,
+      },
+    });
   });
 };
 
-const getProfile = (req,res)=>{
+const getProfile = (req, res) => {
   res.json({
     message: "Protected Route Accessed",
-    user:req.user
+    user: req.user,
   });
-}
+};
+
+const getUsers = (req, res) => {
+  const sql = `
+    SELECT
+      id,
+      name,
+      email,
+      role,
+      created_at
+    FROM users
+    ORDER BY created_at DESC
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        message: err.message,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Users fetched successfully",
+      users: result,
+    });
+  });
+};
+
+const deleteUser = (req, res) => {
+  const { id } = req.params;
+
+  // Prevent deleting yourself (optional but recommended)
+  if (req.user.id == id) {
+    return res.status(400).json({
+      message: "You cannot delete your own account",
+    });
+  }
+
+  const sql = "DELETE FROM users WHERE id = ?";
+
+  db.query(sql, [id], (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        message: err.message,
+      });
+    }
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({
+        message: "User Not Found",
+      });
+    }
+
+    return res.status(200).json({
+      message: "User Deleted Successfully",
+    });
+  });
+};
 
 module.exports = {
   registerUser,
   loginUser,
-  getProfile
+  getProfile,
+  getUsers,
+  deleteUser,
 };

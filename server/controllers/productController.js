@@ -1,7 +1,9 @@
 const db = require("../config/db");
+const cloudinary = require("../config/cloudinary");
 
 const addProduct = (req, res) => {
-  const { category_id, name, description, price, stock, image } = req.body;
+  const { category_id, name, description, price, stock } = req.body;
+  const image = req.file ? req.file.path : null;
 
   const checkCategoryQuery = "SELECT id from categories WHERE id=?";
   const insertProductQuery = `INSERT INTO products
@@ -106,9 +108,10 @@ const getProductById = (req, res) => {
 const updateProduct = (req, res) => {
   const { id } = req.params;
 
-  const { category_id, name, description, price, stock, image } = req.body;
+  const { category_id, name, description, price, stock } = req.body;
 
-  const checkProductQuery = "SELECT id FROM products WHERE id = ?";
+  // Get complete product details (including image)
+  const checkProductQuery = "SELECT * FROM products WHERE id = ?";
 
   db.query(checkProductQuery, [id], (err, result) => {
     if (err) {
@@ -123,6 +126,17 @@ const updateProduct = (req, res) => {
       });
     }
 
+    const oldImage = result[0].image;
+
+    const image = req.file ? req.file.path : oldImage;
+
+    if (req.file && oldImage) {
+      const publicId = oldImage.split("/").pop().split(".")[0];
+
+      cloudinary.uploader.destroy(`ecommerce-products/${publicId}`);
+    }
+
+    // Check category exists
     const checkCategoryQuery = "SELECT id FROM categories WHERE id = ?";
 
     db.query(checkCategoryQuery, [category_id], (err, result) => {
@@ -173,26 +187,57 @@ const updateProduct = (req, res) => {
 const deleteProduct = (req, res) => {
   const { id } = req.params;
 
-  const sql = "DELETE FROM products where id = ?";
+  const checkProductQuery = "SELECT * FROM products WHERE id = ?";
 
-  db.query(sql, [id], (err, result) => {
+  db.query(checkProductQuery, [id], (err, result) => {
     if (err) {
       return res.status(500).json({
         message: err.message,
       });
     }
-
-    if (result.affectedRows === 0) {
+    if (result.length === 0) {
       return res.status(404).json({
         message: "Product Not Found",
       });
     }
 
-    res.status(200).json({
-      message: "Product Deleted Successfully",
-    });
+    const image = result[0].image;
 
+    if (image) {
+      const publicId = image.split("/").pop().split(".")[0];
+
+      cloudinary.uploader.destroy(
+        `ecommerce-products/${publicId}`,
+        (error, result) => {
+          if (error) {
+            console.log("Cloudinary Delete Error:", error);
+          } else {
+            console.log("Cloudinary Delete Success:", result);
+          }
+        },
+      );
+    }
+
+    const deleteQuery = "DELETE FROM products where id = ?";
+
+    db.query(deleteQuery, [id], (err, result) => {
+      if (err) {
+        return res.status(500).json({
+          message: err.message,
+        });
+      }
+
+      return res.status(200).json({
+        message: "Product Deleted Successfully",
+      });
+    });
   });
 };
 
-module.exports = { addProduct, getProducts, getProductById, updateProduct,deleteProduct};
+module.exports = {
+  addProduct,
+  getProducts,
+  getProductById,
+  updateProduct,
+  deleteProduct,
+};

@@ -11,8 +11,10 @@ const {
   deleteProduct,
 } = require("../controllers/productController");
 
-router.post("/", protect, admin, addProduct);
-router.put("/:id", protect, admin, updateProduct);
+const upload = require("../config/multer");
+
+router.post("/", protect, admin, upload.single("image"), addProduct);
+router.put("/:id", protect, admin, upload.single("image"), updateProduct);
 router.delete("/:id",protect,admin,deleteProduct);
 router.get("/", getProducts);
 router.get("/:id", getProductById);

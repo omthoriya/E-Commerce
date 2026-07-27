@@ -175,90 +175,185 @@ const getOrderById = (req, res) => {
   });
 };
 
-  const updateOrderStatus = (req, res) => {
-    const { id } = req.params;
-    const { status } = req.body;
+const updateOrderStatus = (req, res) => {
+  const { id } = req.params;
+  const { status } = req.body;
 
-    const validStatus = [
-      "PENDING",
-      "CONFIRMED",
-      "SHIPPED",
-      "DELIVERED",
-      "CANCELLED",
-    ];
+  const validStatus = [
+    "PENDING",
+    "CONFIRMED",
+    "SHIPPED",
+    "DELIVERED",
+    "CANCELLED",
+  ];
 
-    if (!validStatus.includes(status)) {
-      return res.status(400).json({
-        message: "Invalid Order Status",
+  if (!validStatus.includes(status)) {
+    return res.status(400).json({
+      message: "Invalid Order Status",
+    });
+  }
+
+  const checkOrderQuery = "SELECT * FROM orders where id = ?";
+
+  db.query(checkOrderQuery, [id], (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        message: err.message,
+      });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({
+        message: "Order Not Found",
       });
     }
 
-    const checkOrderQuery = "SELECT * FROM orders where id = ?";
+    const updateOrderQuery = "UPDATE orders SET status = ? WHERE id = ?";
 
-    db.query(checkOrderQuery, [id], (err, result) => {
+    db.query(updateOrderQuery, [status, id], (err, result) => {
       if (err) {
         return res.status(500).json({
           message: err.message,
         });
       }
-      if (result.length === 0) {
-        return res.status(404).json({
-          message: "Order Not Found",
-        });
-      }
-
-      const updateOrderQuery = "UPDATE orders SET status = ? WHERE id = ?";
-
-      db.query(updateOrderQuery, [status, id], (err, result) => {
-        if (err) {
-          return res.status(500).json({
-            message: err.message,
-          });
-        }
-        return res.status(200).json({
-          message: "Order Updated Successfully",
-        });
+      return res.status(200).json({
+        message: "Order Updated Successfully",
       });
     });
-  };
+  });
+};
 
-  const cancelOrder = (req, res) => {
-    const { id } = req.params;
-    const userId = req.user.id;
+const cancelOrder = (req, res) => {
+  const { id } = req.params;
+  const userId = req.user.id;
 
-    const checkOrderQuery = "SELECT * FROM orders WHERE id = ? AND user_id = ?";
+  const checkOrderQuery = "SELECT * FROM orders WHERE id = ? AND user_id = ?";
 
-    db.query(checkOrderQuery,[id,userId],(err,result)=>{
-      if(err){
+  db.query(checkOrderQuery, [id, userId], (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        message: err.message,
+      });
+    }
+    if (result.length === 0) {
+      return res.status(404).json({
+        message: "Order Not Found",
+      });
+    }
+    if (result[0].status !== "PENDING") {
+      return res.status(400).json({
+        message: "Only pending orders can be cancelled",
+      });
+    }
+    const cancelOrderQuery =
+      "UPDATE orders SET status = 'CANCELLED' WHERE id = ?";
+
+    db.query(cancelOrderQuery, [id], (err) => {
+      if (err) {
         return res.status(500).json({
-          message:err.message
-        })
-      }
-      if(result.length === 0){
-        return res.status(404).json({
-          message:"Order Not Found"
-        })
-      }
-      if (result[0].status !== "PENDING") {
-        return res.status(400).json({
-          message: "Only pending orders can be cancelled",
+          message: err.message,
         });
       }
-        const cancelOrderQuery =
-          "UPDATE orders SET status = 'CANCELLED' WHERE id = ?";
 
-        db.query(cancelOrderQuery, [id], (err) => {
-          if (err) {
-            return res.status(500).json({
-              message: err.message,
-            });
-          }
+      return res.status(200).json({
+        message: "Order Cancelled Successfully",
+      });
+    });
+  });
+};
 
-          return res.status(200).json({
-            message: "Order Cancelled Successfully",
-          });
+const getAllOrders = (req, res) => {
+  const sql = `
+    SELECT
+      o.id,
+      u.name,
+      u.email,
+      o.total_amount,
+      o.status,
+      o.created_at
+    FROM orders o
+    JOIN users u
+      ON o.user_id = u.id
+  `;
+
+  db.query(sql, (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        message: err.message,
+      });
+    }
+
+    return res.status(200).json({
+      message: "Orders fetched successfully",
+      orders: result,
+    });
+  });
+};
+
+const getOrderByIdAdmin = (req, res) => {
+  const { id } = req.params;
+
+  const getOrderQuery = `
+    SELECT
+      o.id,
+      o.user_id,
+      u.name,
+      u.email,
+      o.total_amount,
+      o.status,
+      o.created_at
+    FROM orders o
+    JOIN users u
+      ON o.user_id = u.id
+    WHERE o.id = ?
+  `;
+
+  db.query(getOrderQuery, [id], (err, result) => {
+    if (err) {
+      return res.status(500).json({
+        message: err.message,
+      });
+    }
+
+    if (result.length === 0) {
+      return res.status(404).json({
+        message: "Order Not Found",
+      });
+    }
+
+    const getOrderItemsQuery = `
+      SELECT
+        oi.product_id,
+        p.name,
+        oi.quantity,
+        oi.price
+      FROM order_items oi
+      JOIN products p
+        ON oi.product_id = p.id
+      WHERE oi.order_id = ?
+    `;
+
+    db.query(getOrderItemsQuery, [id], (err, items) => {
+      if (err) {
+        return res.status(500).json({
+          message: err.message,
         });
-    })
-  };
+      }
 
-module.exports = { placeOrder, getOrder, getOrderById, updateOrderStatus,cancelOrder };
+      return res.status(200).json({
+        message: "Order fetched successfully",
+        order: result[0],
+        items: items,
+      });
+    });
+  });
+};
+
+module.exports = {
+  placeOrder,
+  getOrder,
+  getOrderById,
+  updateOrderStatus,
+  cancelOrder,
+  getAllOrders,
+  getOrderByIdAdmin,
+};
