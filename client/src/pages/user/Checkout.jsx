@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { placeOrder } from "../../services/orderService";
 import { useNavigate } from "react-router-dom";
+import toast from "react-hot-toast";
 
 const Checkout = () => {
   const [formData, setFormData] = useState({
@@ -22,10 +23,10 @@ const Checkout = () => {
     try{
         const data = await placeOrder();
 
-        alert(data.message)
+        toast.success(data.message);
         navigate("/orders");
     } catch(error){
-        alert(error.response?.data?.message || "Failed to place order");
+        toast.error(error.response?.data?.message || "Failed to place order");
     }
   };
 

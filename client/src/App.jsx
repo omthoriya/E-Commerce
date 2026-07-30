@@ -6,23 +6,20 @@ import { Toaster } from "react-hot-toast";
 
 function App() {
   const location = useLocation();
-
   const isAdminRoute = location.pathname.startsWith("/admin");
 
   return (
-    <>
-      {/* Toast Notifications */}
+    <div className="min-h-screen flex flex-col">
       <Toaster position="top-right" reverseOrder={false} />
 
-      {/* Navbar */}
       {!isAdminRoute && <Navbar />}
 
-      {/* Routes */}
-      <AppRoutes />
+      <main className="flex-1">
+        <AppRoutes />
+      </main>
 
-      {/* Footer */}
       {!isAdminRoute && <Footer />}
-    </>
+    </div>
   );
 }
 

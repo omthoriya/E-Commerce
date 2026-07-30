@@ -1,6 +1,6 @@
 const Newsletter = () => {
   return (
-    <section className="bg-blue-600 py-16">
+    <section className="bg-slate-600 py-16">
       <div className="max-w-3xl mx-auto text-center px-6">
         <h2 className="text-4xl font-bold text-white">Stay Updated</h2>
 

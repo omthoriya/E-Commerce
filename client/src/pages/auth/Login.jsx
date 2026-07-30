@@ -22,7 +22,7 @@ const Login = () => {
     e.preventDefault();
 
     try {
-      const data = await loginUser(formData)
+      const data = await loginUser(formData);
 
       localStorage.setItem("token", data.token);
       localStorage.setItem("user", JSON.stringify(data.user));
@@ -35,34 +35,41 @@ const Login = () => {
         navigate("/");
       }
     } catch (error) {
-
-     toast.error(error.response?.data?.message || error.message);
+      toast.error(error.response?.data?.message || error.message);
     }
   };
 
   return (
-    <div className="max-w-md mx-auto mt-10">
-      <h1 className="text-3xl font-bold mb-6">Login</h1>
-      <form onSubmit={handleSubmit} className="space-y-4">
-        <input
-          type="email"
-          name="email"
-          placeholder="email"
-          onChange={handleChange}
-          className="w-full border p-3 rounded"
-        />
-        <input
-          type="password"
-          name="password"
-          placeholder="password"
-          onChange={handleChange}
-          className="w-full border p-3 rounded"
-        />
-
-        <button className="w-full bg-blue-600 text-white p-3 rounded">
+    <div className="flex justify-center items-center py-20 px-4">
+      <div className="w-full max-w-md bg-white shadow-xl rounded-xl p-8">
+        <h1 className="text-4xl font-bold text-center mb-8 text-blue-600">
           Login
-        </button>
-      </form>
+        </h1>
+
+        <form onSubmit={handleSubmit} className="space-y-5">
+          <input
+            type="email"
+            name="email"
+            placeholder="Enter Email"
+            onChange={handleChange}
+            className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+
+          <input
+            type="password"
+            name="password"
+            placeholder="Enter Password"
+            onChange={handleChange}
+            className="w-full border rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            required
+          />
+
+          <button className="w-full bg-blue-600 text-white p-3 rounded-lg hover:bg-blue-700 transition font-semibold">
+            Login
+          </button>
+        </form>
+      </div>
     </div>
   );
 };

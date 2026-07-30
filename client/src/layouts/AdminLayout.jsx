@@ -15,12 +15,12 @@ const AdminLayout = () => {
   };
 
   return (
-    <div className="flex min-h-screen bg-slate-100">
+    <div className="flex min-h-screen bg-neutral-100">
       {/* Sidebar */}
-      <aside className="w-64 bg-slate-900 text-white shadow-xl">
+      <aside className="w-64 bg-stone-700 text-white">
         <div className="p-6 border-b border-slate-700">
-          <h1 className="text-2xl font-bold text-blue-400">ShopEase</h1>
-          <p className="text-sm text-slate-400 mt-1">Admin Panel</p>
+          <h1 className="text-2xl font-bold text-white-400">ShopEase</h1>
+          <p className="text-sm text-white-400 mt-1">Admin Panel</p>
         </div>
 
         <nav className="mt-6 px-3 space-y-2">
@@ -34,7 +34,7 @@ const AdminLayout = () => {
               }`
             }
           >
-            📊 Dashboard
+            Dashboard
           </NavLink>
 
           <NavLink
@@ -47,7 +47,7 @@ const AdminLayout = () => {
               }`
             }
           >
-            📂 Categories
+            Categories
           </NavLink>
 
           <NavLink
@@ -60,7 +60,7 @@ const AdminLayout = () => {
               }`
             }
           >
-            🛍 Products
+            Products
           </NavLink>
 
           <NavLink
@@ -73,7 +73,7 @@ const AdminLayout = () => {
               }`
             }
           >
-            📦 Orders
+            Orders
           </NavLink>
 
           <NavLink
@@ -86,7 +86,7 @@ const AdminLayout = () => {
               }`
             }
           >
-            👥 Users
+            Users
           </NavLink>
         </nav>
       </aside>

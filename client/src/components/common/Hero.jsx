@@ -2,42 +2,49 @@ import { Link } from "react-router-dom";
 
 const Hero = () => {
   return (
-    <section className="bg-gradient-to-r from-blue-600 to-indigo-700 text-white">
-      <div className="max-w-7xl mx-auto px-6 py-20 flex flex-col-reverse md:flex-row items-center justify-between">
-        {/* Left Side */}
-        <div className="md:w-1/2 text-center md:text-left mt-10 md:mt-0">
-          <h1 className="text-5xl md:text-6xl font-bold leading-tight">
-            Welcome to <span className="text-yellow-300">ShopEase</span>
+    <section className="bg-gray-50 border-b">
+      <div className="max-w-7xl mx-auto px-6 py-12 flex flex-col-reverse md:flex-row items-center justify-between gap-10">
+        {/* Left */}
+        <div className="md:w-1/2">
+          <span className="inline-block bg-blue-100 text-blue-700 px-4 py-1 rounded-full text-sm font-medium mb-4">
+            🛍️ Online Shopping Made Easy
+          </span>
+
+          <h1 className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight">
+            Shop the Latest
+            <br />
+            Products at
+            <span className="text-blue-600"> Best Prices</span>
           </h1>
 
-          <p className="mt-6 text-lg text-gray-200">
-            Discover the latest products at the best prices. Shop smarter with
-            fast delivery and secure payments.
+          <p className="mt-5 text-gray-600 text-lg">
+            Explore mobiles, laptops, electronics and many more products with
+            secure payments and fast delivery.
           </p>
 
-          <div className="mt-8 flex justify-center md:justify-start gap-4">
+          <div className="mt-8 flex flex-wrap gap-4">
             <Link
               to="/products"
-              className="bg-yellow-400 text-black px-6 py-3 rounded-lg font-semibold hover:bg-yellow-300 transition"
+              className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition"
             >
               Shop Now
             </Link>
 
             <Link
               to="/products"
-              className="border border-white px-6 py-3 rounded-lg hover:bg-white hover:text-blue-700 transition"
+              className="border border-blue-600 text-blue-600 px-6 py-3 rounded-lg hover:bg-blue-600 hover:text-white transition"
             >
-              Explore Products
+              Browse Products
             </Link>
           </div>
         </div>
 
-        {/* Right Side */}
+        {/* Right */}
         <div className="md:w-1/2 flex justify-center">
           <img
             src="https://images.unsplash.com/photo-1511707171634-5f897ff02aa9?w=700"
             alt="Shopping"
-            className="w-full max-w-md rounded-xl shadow-xl"
+            className="w-full max-w-sm rounded-xl shadow-lg"
           />
         </div>
       </div>
