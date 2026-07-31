@@ -212,22 +212,6 @@ npm run dev
 
 ---
 
-## 📸 Screenshots
-
-Add screenshots here.
-
-Example:
-
-```
-screenshots/
-    home.png
-    login.png
-    admin-dashboard.png
-    products.png
-```
-
----
-
 ## 👨‍💻 Author
 
 **Om Thoriya**
